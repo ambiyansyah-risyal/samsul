@@ -59,10 +59,7 @@ class RAG:
             embedding=self.embedding_model,
             client=client,
             collection_name=self.chroma_db_collection_name,
-            ids=[doc.metadata["source"] for doc in documents],
         )
-
-        vectorstore.delete(ids=[doc.metadata["source"] for doc in documents])
 
         return vectorstore
 
