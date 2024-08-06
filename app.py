@@ -28,7 +28,7 @@ def show_ui():
             st.markdown(prompt)
         with st.spinner("Processing"):
             with st.chat_message('assistant'):
-                respond = st.write_stream(rag.chain(prompt))
+                respond = st.write(rag.chain(prompt))
 
         st.session_state.messages.append({'role':'ai', 'content': respond})
 
