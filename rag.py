@@ -132,7 +132,7 @@ class RAG:
         #     | StrOutputParser()
         # )
         # print(prompt)
-        result = rag_chain.stream({"input": query, "chat_history": chat_history})
+        result = rag_chain.invoke({"input": query, "chat_history": chat_history})
         print(rag_chain)
         chat_history.extend([HumanMessage(content=query), result["answer"]])
 
