@@ -17,10 +17,14 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.messages import HumanMessage
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_community.document_transformers import DoctranQATransformer
+import json
+from langchain.storage.in_memory import InMemoryStore
 
 load_dotenv()
 
-chat_history = []
+# chat_history = []
+chat_history = InMemoryStore()
 
 class RAG:
     def __init__(self):
@@ -50,6 +54,11 @@ class RAG:
         )
 
         return loader.load()
+
+    def transform(self, docs):
+        qa_transformer = DoctranQATransformer(openai_api_model='gpt-3.5-turbo')
+        transformed_document = qa_transformer.transform_documents(docs)
+        return transformed_document
 
     def split(self, docs: List[Document]) -> List[Document]:
         return self.text_splitter.split_documents(docs)
@@ -86,7 +95,7 @@ class RAG:
             embedding_function=self.embedding_model,
         )
 
-        print(vectordb.similarity_search(query))
+        vectordb.delete(ids=['123'])
 
         retriever = vectordb.as_retriever()
 
@@ -126,29 +135,36 @@ class RAG:
 
         # # TODO: add reference to source document
         # prompt = (
-        #     {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        #     | prompt
+        #     {"context": retriever | format_docs, "input": RunnablePassthrough(), "chat_history": chat_history}
+        #     | qa_system_prompt
         #     | self.llm
         #     | StrOutputParser()
         # )
         # print(prompt)
         result = rag_chain.invoke({"input": query, "chat_history": chat_history})
-        print(rag_chain)
-        chat_history.extend([HumanMessage(content=query), result["answer"]])
+        # print(rag_chain)
+        # chat_history.extend([HumanMessage(content=query), result["answer"]])
+        chat_history.amset([HumanMessage(content=query), result["answer"]])
 
         return result["answer"]
 
 def run_embedding():
     rag = RAG()
 
-    docs = rag.load()
-    print(f"Loaded {len(docs)} docs")
+    # docs = rag.load()
+    # print(f"Loaded {len(docs)} docs")
 
-    chunks = rag.split(docs)
-    print(f"Split into {len(chunks)} chunks")
+    # transformed_document = rag.transform(docs)
+    # print(json.dumps(transformed_document, indent=2))
 
-    vectordb = rag.store(chunks)
-    print(f"Stored in {vectordb}")
+    # chunks = rag.split(docs)
+    # print(f"Split into {len(chunks)} chunks")
+
+    # vector_database = rag.store(chunks)
+    # print(f"Stored in {vector_database}")
+
+    # result = rag.chain("What is RDA in Mitrais?")
+    # print(result)
 
 if __name__ == "__main__":
     run_embedding()

@@ -4,11 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-langchain = "*"
-langchain-community = "*"
-langchain-openai = "*"
 streamlit = "*"
-langchain-chroma = "*"
 
 [dev-packages]
 

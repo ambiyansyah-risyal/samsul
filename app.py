@@ -12,7 +12,7 @@ def show_ui():
     st.title("Welcome to SAMSUL")
     st.header("Your Intelligent Companion for Every Conversation")
 
-    if ('messages' not in st.session_state):
+    if 'messages' not in st.session_state:
         st.session_state.messages = []
 
     for message in st.session_state.messages:
@@ -21,16 +21,17 @@ def show_ui():
 
     prompt = st.chat_input("Message SAMSUL...")
 
-    if (prompt):
-        st.session_state.messages.append({'role':'user', 'content': prompt})
+    if prompt:
+        st.session_state.messages.append({'role': 'user', 'content': prompt})
 
         with st.chat_message("user"):
             st.markdown(prompt)
         with st.spinner("Processing"):
-            with st.chat_message('assistant'):
-                respond = st.write(rag.chain(prompt))
+            response = rag.chain(prompt)
+            st.session_state.messages.append({'role': 'assistant', 'content': response})
 
-        st.session_state.messages.append({'role':'ai', 'content': respond})
+            with st.chat_message('assistant'):
+                st.markdown(response)
 
     st.button('Reset Chat', on_click=reset_conversation)
 
